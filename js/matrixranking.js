@@ -140,7 +140,7 @@ MatrixRanking = Object.assign( MatrixRanking, {
         }
 
         //Need to unbind inline onclick for hidden input radios cause they do their own checking logic which blocks the reordering below
-        $("tr[mtxgrp='"+mtx_grp+"'] .data.choicematrix input[type='radio']").removeAttr('onclick');
+        // Not needed - editing document form element storing data directly. No need to interact with the matrix radio buttons.
 
         //NOW SET THE UI AS "Sortable"
         $("#"+sort_rank_id+", #"+sort_rank_target_id+"").sortable({
@@ -161,13 +161,19 @@ MatrixRanking = Object.assign( MatrixRanking, {
                 }
 
                 //FIRST UNCHECK ALL THE CURRENT ORDER TO AVOID THAT DOUBLE CHECKED ERROR MESSAGE
-                $("tr[mtxgrp='"+mtx_grp+"'] .resetLinkParent .smalllink").click();
+                // Not needed now - editing document for directly.
+                
+                //ITERATE THROUGH CURRENT ORDER AND UPDATE ALL VALUES IN DOCUMENT FORM OBJECT
 
-                //NOW ITERATE THROUGH CURRENT ORDER AND UPDATE ALL THE CLICK VALUES IN THE EXISTING MATRIX (that is sitting offscreen)
+                $("#"+sort_rank_id+" li").each(function(){
+                    var mtx_variable = $(this).attr('data-fieldname') ;
+                    $("input[name='"+mtx_variable+"']").attr('value', null) ;
+                });
+                
                 $("#"+sort_rank_target_id+" li").each(function(idx){
+                    var mtx_variable = $(this).attr('data-fieldname') ;
                     var rank_order 	= idx + 1;
-                    var mtx_pfx 	= $(this).data("checkgrp");
-                    var mtx_order 	= mtx_pfx + rank_order;
+                    $("input[name='"+mtx_variable+"']").attr('value', rank_order) ;
 
                     if(use_rank_label){
                         $(this).find(".badge").remove();
@@ -177,10 +183,7 @@ MatrixRanking = Object.assign( MatrixRanking, {
                             $(this).prepend(rank_badge);
                         }
                     }
-                    setTimeout(function(){
-                        // newest redcap version adds new UI / js to matrix ranking ... small 100ms timeout will allow this to wait oout RC check, and then reset rankings
-                        $(mtx_order).click();
-                    },100);
+                   
                 });
             }
         });
